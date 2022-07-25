@@ -16,14 +16,8 @@ class ArticlesController < ApplicationController
     # In real life this could be a call for example to generate a report, perform a complex SQL query etc.
     # For the sake of testing the method contains only sleep(20)
 
-    prepared_params = ExternalCall.run_complex_sql_query(article_params)
-    @article = Article.new(prepared_params)
-
-    if @article.save
-      redirect_to @article
-    else
-      render :new, status: :unprocessable_entity
-    end
+    ArticleWorker.perform_async(article_params.to_h)
+    redirect_to root_path
   end
 
   private
